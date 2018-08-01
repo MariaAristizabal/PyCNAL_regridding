@@ -75,6 +75,19 @@ class obc_vectvariable():
 			self.field_target = _ESMF.Field(self.grid_target, staggerloc=_ESMF.StaggerLoc.CENTER)
 		return None
 
+                # Calculates lat and lon of parallel lines on both side of boundaries. 
+                # This is done in order to calculate du and dv, 
+                # that are needed to calculate the vorticity terms in the obcs
+                deltaD = 0.7 # perpendicular distance between parallel lines.
+                             #default value for the moment
+                ang = np.rad2deg(np.arctan(np.diff(self.lat)/np.diff(self.lon)))
+                ang = np.append(ang_south[0],ang_south)
+
+                self.lon_paral1 = self.lon + deltaD*np.sin(np.deg2rad(ang))
+                self.lat_paral1 = sel.lat - deltaD*np.cos(np.deg2rad(ang))
+                self.lon_paral2 = self.lon - deltaD*np.sin(np.deg2rad(ang))
+                self.lat_paral2 = self.lat + deltaD*np.cos(np.deg2rad(ang))
+
 	def allocate(self):
 		''' Allocate the output array '''
 		if self.geometry == 'surface':
